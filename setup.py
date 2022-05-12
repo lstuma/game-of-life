@@ -8,12 +8,13 @@ setuptools.setup(
     version='0.1',
     author='Lukas Stockmann',
     author_email='g.lstuma@gmail.com',
-    description='A clone of the popular game called \'Game Of Life\'',
+    description='A clone of the popular \'Game Of Life\'',
     long_description=long_desc,
     url='',
     packages=setuptools.find_packages(),
     install_requires=['setuptools,'
                       'pygame',
+                      'numpy'
                       ],
     python_requires='>=3.7',
     entry_points={
