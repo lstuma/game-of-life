@@ -35,8 +35,8 @@ class Grid(object):
 
         # Dict of colors for the pixels
         self.pixel_color = dict()
-        self.pixel_color[False] = ((100, 100, 100), (150, 150, 150))
-        self.pixel_color[True] = ((200, 200, 100), (200, 200, 100))
+        self.pixel_color[False] = ((10, 10, 10), (15, 15, 15))
+        self.pixel_color[True] = ((200, 200, 200), (200, 200, 200))
 
         # Generate an empty grid
         self.gen_grid()
@@ -44,6 +44,12 @@ class Grid(object):
     def toggle_pixel(self, cords):
         # Toggle pixel state
         self.grid[cords] = not self.get_pixel(cords)
+        # Redraw the toggled pixel
+        self.draw_pixel(cords=cords)
+
+    def set_pixel(self, cords, state):
+        # Set pixel state
+        self.grid[cords] = state
         # Redraw the toggled pixel
         self.draw_pixel(cords=cords)
 
