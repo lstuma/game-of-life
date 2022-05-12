@@ -18,6 +18,12 @@ class Game(object):
         # The grid for the game
         self.grid = None
 
+        # Stores button states
+        self.button_state: list = [False]*4
+
+        # The last selected pixel
+        self.hover_pixel: tuple = tuple()
+
         # Open the game window
         self.open_window()
 
@@ -32,6 +38,43 @@ class Game(object):
         # Pass window to the main loop
         self.main_loop()
 
+    def event_handling(self, event):
+        # Quit event
+        if event.type == pygame.QUIT:
+            # Debug statement
+            if self.debug:
+                print('DEBUG: User closed window')
+            # Set window open to false => breaks main loop
+            window_open = False
+
+        # Mouse movement event
+        elif event.type == pygame.MOUSEMOTION:
+            # Get position of mouse in window
+            mouse_pos = pygame.mouse.get_pos()
+
+            # Check if mouse click is in grid
+            if self.grid.act_constraints[0] < mouse_pos[1] < self.grid.act_constraints[2] and \
+               self.grid.act_constraints[1] < mouse_pos[0] < self.grid.act_constraints[3]:
+                # Get position of pixel on grid
+                self.hover_pixel = ((mouse_pos[0] - self.grid.act_constraints[1]) // self.grid.pixel_size,
+                                    (mouse_pos[1] - self.grid.act_constraints[0]) // self.grid.pixel_size)
+
+                # Toggle pixel in grid at mouse position if mouse button is being pressed
+                if self.button_state[1] or self.button_state[3]:
+                    self.grid.set_pixel(cords=self.hover_pixel, state=self.button_state[1])
+
+        # Mouse button down event
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                self.button_state[1] = True
+            elif event.button == 3:
+                self.button_state[3] = True
+
+        # Mouse button up event
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.grid.set_pixel(cords=self.hover_pixel, state=self.button_state[1])
+            self.button_state[event.button] = False
+
     def main_loop(self):
         # The clock controls the max frame rate
         clock = pygame.time.Clock()
@@ -41,60 +84,13 @@ class Game(object):
         # Bool storing whether the window is still open
         window_open = True
 
-        # Stores the last selected pixel in the grid
-        selected_pixel: tuple = tuple()
-
-        # Stores whether the primary mouse button is being pressed
-        button_pressed: dict = dict()
-        button_pressed['button 1'] = False
-        button_pressed['button 3'] = False
-
         # The actual main loop
         while window_open:
 
             # Handle events
             for event in pygame.event.get():
-                # Check which event we're dealing with
-
-                # Quit events
-                if event.type == pygame.QUIT:
-                    # Debug statement
-                    if self.debug:
-                        print('DEBUG: User closed window')
-                    # Set window open to false => breaks main loop
-                    window_open = False
-
-                # Mouse movement event
-                elif event.type == pygame.MOUSEMOTION:
-                    # Get position of mouse in window
-                    mouse_pos = pygame.mouse.get_pos()
-
-                    # Check if mouse click is in grid
-                    if self.grid.act_constraints[0] < mouse_pos[1] < self.grid.act_constraints[2] and \
-                            self.grid.act_constraints[1] < mouse_pos[0] < self.grid.act_constraints[3]:
-                        # Get position on square grid
-                        x = (mouse_pos[0] - self.grid.act_constraints[1]) // self.grid.pixel_size
-                        y = (mouse_pos[1] - self.grid.act_constraints[0]) // self.grid.pixel_size
-                        selected_pixel = (x, y)
-
-                        # Toggle pixel in grid at mouse position if mouse button is being pressed
-                        if button_pressed['button 1']:
-                            self.grid.set_pixel(cords=selected_pixel, state=True)
-                        elif button_pressed['button 3']:
-                            self.grid.set_pixel(cords=selected_pixel, state=False)
-
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        button_pressed['button 1'] = True
-                    elif event.button == 3:
-                        button_pressed['button 3'] = True
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    if event.button == 1:
-                        button_pressed['button 1'] = False
-                        self.grid.set_pixel(cords=selected_pixel, state=True)
-                    elif event.button == 3:
-                        button_pressed['button 3'] = False
-                        self.grid.set_pixel(cords=selected_pixel, state=False)
+                # Handle events
+                self.event_handling(event)
 
             # Switch buffers
             pygame.display.flip()
