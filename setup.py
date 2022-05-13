@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='Game Of Life',
-    version='0.1',
+    version='0.2',
     author='Lukas Stockmann',
     author_email='g.lstuma@gmail.com',
     description='A clone of the popular \'Game Of Life\'',

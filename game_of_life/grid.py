@@ -17,6 +17,8 @@ class Grid(object):
         self.pixel_size = pixel_size
         # Relative constraints of the grid (which space of the window it will take up)
         self.constraints = constraints
+        # Amount of grid-pixels on the grid (x, y)
+        self.bounds: tuple = (1, 1)
 
         # A list of the cords of all enabled pixels (otherwise all pixels would neet to be checked on every update)
         self.enabled_pixels = [(5, 5)]
@@ -24,7 +26,7 @@ class Grid(object):
         try:
             # Get the size of the window
             size = screen.get_size()
-            # Calculate absolute constraints of the grid in pixels
+            # Calculate absolute constraints of the grid in actual pixels
             self.act_constraints = [self.constraints[x] * size[(x+1) % 2] for x in range(0, 4)]
         except Exception as e:
             # Debug statement
@@ -48,7 +50,13 @@ class Grid(object):
         # Toggle pixel state
         self.set_pixel(cords, not self.get_pixel(cords))
 
+    def pixel_to_bounds(self, cords):
+        cords = [cords[i] % self.bounds[i] for i in range(0, 2)]
+        return tuple(cords)
+
     def set_pixel(self, cords, state):
+        # Correct coordinates to fit grid bounds
+        cords = self.pixel_to_bounds(cords)
         # Set pixel state
         self.grid[cords] = state
         if cords in self.enabled_pixels and not state:
@@ -81,6 +89,8 @@ class Grid(object):
                 (cords[1] - self.act_constraints[0]) // self.pixel_size)
 
     def get_pixel(self, cords) -> bool:
+        # Correct coordinates to fit grid bounds
+        cords = self.pixel_to_bounds(cords)
         # Check if pixel exists, otherwise generate one
         if cords not in self.grid.keys():
             self.grid[cords] = False
@@ -96,18 +106,22 @@ class Grid(object):
         # The position in the grid
         grid_pos = [0, 0]
         for x in np.arange(self.act_constraints[0], self.act_constraints[2], self.pixel_size):
+            # Update x position in grid
+            grid_pos[0] = 0
             for y in np.arange(self.act_constraints[1], self.act_constraints[3], self.pixel_size):
                 # Creating rect for pixel
                 rect = pygame.Rect(y, x, self.pixel_size, self.pixel_size)
                 # Drawing pixel on buffer
                 pygame.draw.rect(color=(self.pixel_color[self.get_pixel(tuple(grid_pos))][grid_pos[0] % 2 == grid_pos[1] % 2]), surface=self.screen, rect=rect,
                                  width=self.pixel_size)
-                # Update position in grid
+                # Update x position in grid
                 grid_pos[0] += 1
 
-            # Update position in the grid
-            grid_pos[0] = 0
+            # Update y position in grid
             grid_pos[1] += 1
+
+        # Get size of grid
+        self.bounds = tuple(grid_pos)
 
         # Create the outline
         outline = pygame.Rect(self.act_constraints[1]-5,

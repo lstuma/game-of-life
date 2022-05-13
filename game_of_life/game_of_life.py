@@ -1,5 +1,6 @@
 import pygame
 
+import rule_simulation as simulation
 from grid import Grid
 
 
@@ -12,7 +13,7 @@ class Game(object):
         # Initialize the game engine
         pygame.init()
 
-        # The window size
+        # The window bounds
         self.window_size = (1200, 900)
 
         # The grid for the game
@@ -20,6 +21,9 @@ class Game(object):
 
         # Stores button states
         self.button_state: list = [False] * 4
+
+        # Controls whether the simulation is currently playing
+        self.simulation_state = False
 
         # The last selected pixel
         self.hover_pixel: tuple = tuple()
@@ -37,35 +41,6 @@ class Game(object):
 
         # Pass window to the main loop
         self.main_loop()
-
-    def simulate_cycle(self):
-        # Changes which wil be applied once the calculation of the cycle is done
-        changes: list = list()
-        # Only checking ebabled pixels and their surroundings for changes
-        for pixel in self.grid.enabled_pixels:
-            # Rule 1: Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-            # Rule 2: Any live cell with two or three live neighbours lives on to the next generation.
-            # Rule 3: Any live cell with more than three live neighbours dies, as if by overpopulation.
-            if self.get_neighbour_count(pixel) not in [2, 3]:
-                changes.append(pixel)
-            # Rule 4: Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-            for neighbour_pixel in self.get_neighbours(pixel):
-                if not self.grid.get_pixel(neighbour_pixel) and self.get_neighbour_count(neighbour_pixel) == 3:
-                    changes.append(neighbour_pixel)
-
-        # Apply all change
-        for pixel in changes:
-            self.grid.toggle_pixel(cords=pixel)
-
-    def get_neighbour_count(self, cords):
-        return sum([self.grid.get_pixel(pixel) for pixel in self.get_neighbours(cords=cords)])
-
-    @staticmethod
-    def get_neighbours(cords):
-        # Getting the coordinates of all neighbours
-        neighbours = [(cords[0] + x, cords[1] + y) for x in range(-1, 2) for y in range(-1, 2)]
-        neighbours.remove(cords)
-        return neighbours
 
     def event_handling(self, event):
         # Quit event
@@ -101,7 +76,10 @@ class Game(object):
         # Key down event
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                self.simulate_cycle()
+                # Debug statement
+                if self.debug:
+                    print('DEBUG: Changing simulation state')
+                self.simulation_state = not self.simulation_state
 
     def main_loop(self):
         # The clock controls the max frame rate
@@ -111,6 +89,9 @@ class Game(object):
 
         # Bool storing whether the window is still open
         window_open = True
+
+        # Time since last simulation cycle
+        last_sym = 0
 
         # The actual main loop
         while window_open:
@@ -124,6 +105,12 @@ class Game(object):
 
             # Switch buffers
             pygame.display.flip()
+
+            # Simulate rules
+            last_sym += clock.get_time()
+            if self.simulation_state and last_sym > 700:
+                last_sym = 0
+                simulation.simulate_cycle(self.grid)
 
         # Stop the pygame game engine
         pygame.quit()
