@@ -18,6 +18,9 @@ class Grid(object):
         # Relative constraints of the grid (which space of the window it will take up)
         self.constraints = constraints
 
+        # A list of the cords of all enabled pixels (otherwise all pixels would neet to be checked on every update)
+        self.enabled_pixels = [(5, 5)]
+
         try:
             # Get the size of the window
             size = screen.get_size()
@@ -43,13 +46,17 @@ class Grid(object):
 
     def toggle_pixel(self, cords):
         # Toggle pixel state
-        self.grid[cords] = not self.get_pixel(cords)
-        # Redraw the toggled pixel
-        self.draw_pixel(cords=cords)
+        self.set_pixel(cords, not self.get_pixel(cords))
 
     def set_pixel(self, cords, state):
         # Set pixel state
         self.grid[cords] = state
+        if cords in self.enabled_pixels and not state:
+            # Remove pixel from enabled_pixels list
+            self.enabled_pixels.remove(cords)
+        elif cords not in self.enabled_pixels and state:
+            # Add to enabled pixels list
+            self.enabled_pixels.append(cords)
         # Redraw the toggled pixel
         self.draw_pixel(cords=cords)
 
@@ -63,6 +70,15 @@ class Grid(object):
                          surface=self.screen, rect=rect, width=self.pixel_size)
         # Update only the rect
         pygame.display.update(rect)
+
+    def in_grid(self, cords):
+        # Return whether the position is in the grid
+        return self.act_constraints[0] < cords[1] < self.act_constraints[2] and \
+               self.act_constraints[1] < cords[0] < self.act_constraints[3]
+
+    def get_pixel_from_cords(self, cords):
+        return ((cords[0] - self.act_constraints[1]) // self.pixel_size,
+                (cords[1] - self.act_constraints[0]) // self.pixel_size)
 
     def get_pixel(self, cords) -> bool:
         # Check if pixel exists, otherwise generate one

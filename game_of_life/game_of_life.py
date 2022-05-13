@@ -19,7 +19,7 @@ class Game(object):
         self.grid = None
 
         # Stores button states
-        self.button_state: list = [False]*4
+        self.button_state: list = [False] * 4
 
         # The last selected pixel
         self.hover_pixel: tuple = tuple()
@@ -38,14 +38,43 @@ class Game(object):
         # Pass window to the main loop
         self.main_loop()
 
+    def simulate_cycle(self):
+        # Changes which wil be applied once the calculation of the cycle is done
+        changes: list = list()
+        # Only checking ebabled pixels and their surroundings for changes
+        for pixel in self.grid.enabled_pixels:
+            # Rule 1: Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+            # Rule 2: Any live cell with two or three live neighbours lives on to the next generation.
+            # Rule 3: Any live cell with more than three live neighbours dies, as if by overpopulation.
+            if self.get_neighbour_count(pixel) not in [2, 3]:
+                changes.append(pixel)
+            # Rule 4: Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+            for neighbour_pixel in self.get_neighbours(pixel):
+                if not self.grid.get_pixel(neighbour_pixel) and self.get_neighbour_count(neighbour_pixel) == 3:
+                    changes.append(neighbour_pixel)
+
+        # Apply all change
+        for pixel in changes:
+            self.grid.toggle_pixel(cords=pixel)
+
+    def get_neighbour_count(self, cords):
+        return sum([self.grid.get_pixel(pixel) for pixel in self.get_neighbours(cords=cords)])
+
+    @staticmethod
+    def get_neighbours(cords):
+        # Getting the coordinates of all neighbours
+        neighbours = [(cords[0] + x, cords[1] + y) for x in range(-1, 2) for y in range(-1, 2)]
+        neighbours.remove(cords)
+        return neighbours
+
     def event_handling(self, event):
         # Quit event
         if event.type == pygame.QUIT:
             # Debug statement
             if self.debug:
                 print('DEBUG: User closed window')
-            # Set window open to false => breaks main loop
-            window_open = False
+            # Return -1 to close the window
+            return -1
 
         # Mouse movement event
         elif event.type == pygame.MOUSEMOTION:
@@ -53,27 +82,26 @@ class Game(object):
             mouse_pos = pygame.mouse.get_pos()
 
             # Check if mouse click is in grid
-            if self.grid.act_constraints[0] < mouse_pos[1] < self.grid.act_constraints[2] and \
-               self.grid.act_constraints[1] < mouse_pos[0] < self.grid.act_constraints[3]:
+            if self.grid.in_grid(mouse_pos):
                 # Get position of pixel on grid
-                self.hover_pixel = ((mouse_pos[0] - self.grid.act_constraints[1]) // self.grid.pixel_size,
-                                    (mouse_pos[1] - self.grid.act_constraints[0]) // self.grid.pixel_size)
-
+                self.hover_pixel = self.grid.get_pixel_from_cords(mouse_pos)
                 # Toggle pixel in grid at mouse position if mouse button is being pressed
                 if self.button_state[1] or self.button_state[3]:
                     self.grid.set_pixel(cords=self.hover_pixel, state=self.button_state[1])
 
         # Mouse button down event
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                self.button_state[1] = True
-            elif event.button == 3:
-                self.button_state[3] = True
+            self.button_state[event.button] = True
 
         # Mouse button up event
         elif event.type == pygame.MOUSEBUTTONUP:
             self.grid.set_pixel(cords=self.hover_pixel, state=self.button_state[1])
             self.button_state[event.button] = False
+
+        # Key down event
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                self.simulate_cycle()
 
     def main_loop(self):
         # The clock controls the max frame rate
@@ -90,7 +118,9 @@ class Game(object):
             # Handle events
             for event in pygame.event.get():
                 # Handle events
-                self.event_handling(event)
+                if self.event_handling(event) == -1:
+                    # Set window open to false => breaks main loop
+                    window_open = False
 
             # Switch buffers
             pygame.display.flip()
