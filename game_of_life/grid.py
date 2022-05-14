@@ -1,10 +1,10 @@
 import pygame
-
 import numpy as np
 
+import ui
 
 class Grid(object):
-    def __init__(self, screen, pixel_size, constraints = (0, 0, 1, 1), debug=False):
+    def __init__(self, screen, pixel_size, constraints=(0, 0, 1, 1), debug=False):
         # Debug parameter
         self.debug = debug
 
@@ -21,22 +21,13 @@ class Grid(object):
         self.bounds: tuple = (1, 1)
 
         # A list of the cords of all enabled pixels (otherwise all pixels would neet to be checked on every update)
-        self.enabled_pixels = [(5, 5)]
+        self.enabled_pixels = list()
 
-        try:
-            # Get the size of the window
-            size = screen.get_size()
-            # Calculate absolute constraints of the grid in actual pixels
-            self.act_constraints = [self.constraints[x] * size[(x+1) % 2] for x in range(0, 4)]
-        except Exception as e:
-            # Debug statement
-            if self.debug:
-                print(f'WARNING: Could not convert relative constraints to absolute positions: {e}')
-            return
+        # Calculate absolute constraints of the grid in actual pixels
+        self.act_constraints = ui.get_act_constraints(screen=self.screen, constraints=constraints, debug=self.debug)
 
         # The size of the grid in width and height
-        self.grid_size = (self.act_constraints[2] - self.act_constraints[0],
-                          self.act_constraints[3] - self.act_constraints[1])
+        self.grid_size = ui.get_size(act_constraints=self.act_constraints, debug=self.debug)
 
         # Dict of colors for the pixels
         self.pixel_color = dict()
