@@ -12,10 +12,16 @@ setuptools.setup(
     long_description=long_desc,
     url='',
     packages=setuptools.find_packages(),
-    install_requires=['setuptools,'
+    install_requires=['setuptools',
                       'pygame',
                       'numpy'
                       ],
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+    ],
     python_requires='>=3.7',
     entry_points={
         'console_scripts': [
