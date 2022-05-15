@@ -1,7 +1,8 @@
 import pygame
 import numpy as np
 
-import ui
+import game_of_life.ui as ui
+
 
 class Grid(object):
     def __init__(self, screen, pixel_size, constraints=(0, 0, 1, 1), debug=False):
