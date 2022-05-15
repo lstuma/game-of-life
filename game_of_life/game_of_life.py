@@ -59,7 +59,7 @@ class Game(object):
         pygame.display.set_caption('Game Of Life')
 
         # Generate and draw grid
-        self.grid = Grid(self.screen, pixel_size=20, constraints=(0.05, 0.05, 0.85, 0.95), debug=self.debug)
+        self.grid = Grid(self.screen, pixel_size=15, constraints=(0.05, 0.05, 0.85, 0.95), debug=self.debug)
 
         # Instantiate RuleSimulator
         self.rule_simulator = RuleSimulator(grid=self.grid, debug=self.debug)
@@ -124,7 +124,12 @@ class Game(object):
 
         # Mouse button down event
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            self.button_state[event.button] = True
+            try:
+                self.button_state[event.button] = True
+            except Exception as e:
+                # Debug statement:
+                if self.debug:
+                    print(f'WARNING: Could not change button state to True: {e}')
 
             # Check if button is primary mouse button
             if event.button == 1:
@@ -149,7 +154,12 @@ class Game(object):
             if self.grid.in_grid(mouse_pos):
                 # Set hover pixel to correct state
                 self.grid.set_pixel(cords=self.hover_pixel, state=self.button_state[1])
-                self.button_state[event.button] = False
+                try:
+                    self.button_state[event.button] = False
+                except Exception as e:
+                    # Debug statement:
+                    if self.debug:
+                        print(f'WARNING: Could not change button state to False: {e}')
 
         # Key down event
         elif event.type == pygame.KEYDOWN:
