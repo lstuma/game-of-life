@@ -6,3 +6,7 @@ A Python implementation of [John Conway's Game Of Life](https://en.wikipedia.org
 ## Screenshots
 
 ![App Screenshot](https://i.imgur.com/2QJBBzM.png)
+
+## Contributors
+- Niklas Melin
+- Lukas Stockmann
