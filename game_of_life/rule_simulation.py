@@ -1,4 +1,4 @@
-from grid import Grid
+from game_of_life.grid import Grid
 
 
 class RuleSimulator(object):
@@ -27,11 +27,9 @@ class RuleSimulator(object):
         for pixel in changes:
             self.grid.toggle_pixel(cords=pixel)
 
-
     def get_neighbour_count(self, cords):
         # Returns the amount of living neighbour cells
         return sum([self.grid.get_pixel(pixel) for pixel in self.get_neighbours(cords=cords)])
-
 
     def get_neighbours(self, cords):
         # Getting the coordinates of all neighbours

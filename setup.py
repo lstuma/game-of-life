@@ -13,6 +13,7 @@ setuptools.setup(
     url='',
     packages=setuptools.find_packages(),
     install_requires=['setuptools',
+                      'wheel',
                       'pygame',
                       'numpy'
                       ],
@@ -25,7 +26,7 @@ setuptools.setup(
     python_requires='>=3.7',
     entry_points={
         'console_scripts': [
-            'game_of_life=game_of_life.game_of_life:main',
+            'game-of-life=game_of_life.game_of_life:main',
         ]
     }
 )
