@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
 
-import game_of_life.ui as ui
+import ui as ui
 
 
 class Grid(object):

@@ -1,9 +1,9 @@
 import pygame
 import pathlib
 
-import game_of_life.ui as ui
-from game_of_life.rule_simulation import RuleSimulator
-from game_of_life.grid import Grid
+import ui as ui
+from rule_simulation import RuleSimulator
+from grid import Grid
 
 __this_path__ = pathlib.Path('game_of_life.py').resolve()
 __img_path__ = pathlib.Path(str(__this_path__).replace('game_of_life.py', '\\img', 1))
