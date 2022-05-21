@@ -1,4 +1,4 @@
-from game_of_life.grid import Grid
+from grid import Grid
 
 
 class RuleSimulator(object):
