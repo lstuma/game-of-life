@@ -5,15 +5,10 @@ import ui as ui
 from rule_simulation import RuleSimulator
 from grid import Grid
 
-__this_path__ = pathlib.Path('game_of_life.py').resolve()
-__img_path__ = pathlib.Path(str(__this_path__).replace('game_of_life.py', '\\img', 1))
-
 
 class Game(object):
 
     def __init__(self, debug=False):
-        print(f'PATH ths: {__this_path__}')
-        print(f'PATH img: {__img_path__}')
         # Debug parameter
         self.debug = debug
 
