@@ -59,7 +59,7 @@ class Game(object):
         pygame.display.set_caption('Game Of Life')
 
         # Generate and draw grid
-        self.grid = Grid(self.screen, pixel_size=15, constraints=(0.05, 0.05, 0.85, 0.95), debug=self.debug)
+        self.grid = Grid(self.screen, pixel_size=12, constraints=(0.05, 0.05, 0.85, 0.95), debug=self.debug)
 
         # Instantiate RuleSimulator
         self.rule_simulator = RuleSimulator(grid=self.grid, debug=self.debug)
@@ -215,7 +215,7 @@ class Game(object):
 
 
 def main():
-    Game(debug=True)
+    Game(debug=False)
 
 
 if __name__ == '__main__':
