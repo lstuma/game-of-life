@@ -5,6 +5,8 @@ import ui as ui
 from rule_simulation import RuleSimulator
 from grid import Grid
 
+__this_path__ = pathlib.Path('game_of_life.py').resolve()
+
 
 class Game(object):
 
